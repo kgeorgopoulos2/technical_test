@@ -99,11 +99,11 @@ def testing(inputs):
         opt1 = optimise_circuit_part1(seq1)
         opt2 = optimise_circuit_part2(seq2)
 
-        print(get_opt_res(opt1))
+        print("Part 1 optimisation:", get_opt_res(opt1))
 
         opt2 = get_opt_res(opt2)
         opt2 = expand_Ys(opt2)
-        print(opt2)
+        print("Part 2 optimisation:", opt2)
     
     return None
 
