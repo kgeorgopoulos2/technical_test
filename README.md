@@ -50,7 +50,7 @@ A potential workflow to solve this problem could be as follows:
 
 ## How to run
 Each python file can be run via command line with the following steps:
-1. Download the project (for example navigate to a required folder and run $ git clone https://gitfront.io/r/KGeorgopo/edc0dc027787eb49661afc29ca59ab12f7d48736/technical-test.git from GitFront).
+1. Download the project (for example navigate to a required folder and run $ git clone https://github.com/kgeorgopoulos2/technical_test.git from GitFront).
 2. Navigate to the local directory where the project is located (example $ cd /Users/User/repo).
 3. Make sure the terminal or command prompt can run python (simply type python or python3 and then exit() to exit). If not, please follow instructions on how to install Python.
 4. To run Part 1 simply type `python part1.py` and then input a sequence of gates pulses in the relevant format, for example, `X(90), X(90), Y(40), ...`; the resulting optimised sequence will be printed.
