@@ -4,8 +4,8 @@ This test is solved and implemented in Python.
 ## Contents
 - `part1.py`: the code implementing Part 1 of the technical test.
 - `part2.py`: the code implementing Part 2 of the technical test.
-- `test.py`: a few tests to showcase the results when running the implementation for Parts 1 and 2. Note: the resulting optimised sequences from each test have the same effect, but for Part 2 the Y gates will be replaced with a sequence of the form Z(90)Y(\theta)Z(-90).
-- `part3.py`:
+- `part3.py`: the code implementing runtime calculations for Part 3.
+- `test.py`: a few tests to showcase the results when running the implementation for Parts 1 and 2. Note: the resulting optimised sequences from each test have the same effect, but for Part 2 the Y gates will be replaced with a sequence of the form Z(90)Y(\theta)Z(-90). Additionally, there are tests for generating and optimising a random sequence of gates and calculating runtime in each case.
 
 ## Introduction
 A quick introduction to the design decisions and ideas behind each implementation.
