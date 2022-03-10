@@ -1,4 +1,4 @@
-# OQC Technical Test
+# Technical Test
 This test is solved and implemented in Python.
 
 ## Contents
