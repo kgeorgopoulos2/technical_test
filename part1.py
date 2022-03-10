@@ -35,7 +35,8 @@ def get_opt_res(opt):
     # If gates have angle 0 or 360, they get eliminated
     res = [(gates[i] + '(' + str(round(opt[i])) + ')') for i in range(len(opt)) if round(opt[i])!=0 and round(opt[i])!=360]
     
-    return (','.join(res))
+    # If all the angles in the rotations are 0 or 360, then no operation is necessary
+    return (','.join(res)) if res!=[] else ("No operation needed")
 
 # Run Part 1
 seq = input("Enter a sequence of pulses: ")

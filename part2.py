@@ -13,8 +13,7 @@ def expand_Ys(seq):
     - seq: the sequence for expansion; returns: a string containing the new operations'''
     spl = seq.split(",")
     for i, op in enumerate(spl):
-        if (get_instr(op)=='Y'):
-            spl[i] = 'Z(90),X(' + str(get_angle(op)) + '),Z(-90)'
+        if (get_instr(op)=='Y'): spl[i] = 'Z(90),X(' + str(get_angle(op)) + '),Z(-90)'
 
     seq = ','.join(spl)
     
@@ -53,8 +52,8 @@ def optimise_circuit_part2(rot_string):
     # combined expression.
     combined_rotations = np.prod(rotation_list)
     
-    # Output as euler angles for the intrinsic x-y-x rotations
-    res = combined_rotations.as_euler("XYX", degrees=True)
+    # Output as euler angles for the extrinsic x-y-z rotations
+    res = combined_rotations.as_euler("XYZ", degrees=True)
     
     return res
 
@@ -64,7 +63,8 @@ def get_opt_res(opt):
     # If gates have angle 0 or 360, they get eliminated
     res = [(gates[i] + '(' + str(round(opt[i])) + ')') for i in range(len(opt)) if round(opt[i])!=0 and round(opt[i])!=360]
     
-    return (','.join(res))
+    # If all the angles in the rotations are 0 or 360, then no operation is necessary
+    return (','.join(res)) if res!=[] else ("No operation needed")
 
 # Run Part 2
 seq = input("Enter a sequence of pulses: ")

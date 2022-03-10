@@ -3,6 +3,9 @@
 import numpy as np
 import collections
 from scipy.spatial.transform import Rotation
+import random
+import warnings
+warnings.filterwarnings("ignore")
 
 ### ----------------------- PART 1 -------------------------- ###
 def optimise_circuit_part1(rot_string):
@@ -21,7 +24,7 @@ def optimise_circuit_part1(rot_string):
     # combined expression.
     combined_rotations = np.prod(rotation_list)
     
-    # Output as euler angles
+    # Output as extrinsic euler angles
     res = combined_rotations.as_euler("XYX", degrees=True)
     
     return res
@@ -32,7 +35,8 @@ def get_opt_res(opt):
     # If gates have angle 0 or 360, they get eliminated
     res = [(gates[i] + '(' + str(round(opt[i])) + ')') for i in range(len(opt)) if round(opt[i])!=0 and round(opt[i])!=360]
     
-    return (','.join(res))
+    # If all the angles in the rotations are 0 or 360, then no operation is necessary
+    return (','.join(res)) if res!=[] else ("No operation needed")
 
 ### ----------------------- PART 2 -------------------------- ###
 def expand_Ys(seq):
@@ -80,17 +84,30 @@ def optimise_circuit_part2(rot_string):
     # combined expression.
     combined_rotations = np.prod(rotation_list)
     
-    # Output as euler angles for the intrinsic x-y-x rotations
-    res = combined_rotations.as_euler("XYX", degrees=True)
+    # Output as euler angles for the x-y-z rotations
+    res = combined_rotations.as_euler("XYZ", degrees=True)
     
     return res
+
+### ----------------------- PART 3 -------------------------- ###
+def calculate_runtime(seq, lx, lz, ly):
+    '''Calculates the runtime of an quantum circuit (optimised or not). - seq: the circuit/sequence of rotations,
+    lx, ly, lz: the runtime of an X, Y, Z gate; returns: the runtime of the circuit'''
+    runtime = 0 # Initialise runtime
+    seq = seq.split(",") # Prepare the sequence
+    # Calculate the runtime
+    for i in range(len(seq)):
+        if (seq[i][0]=='X'): runtime += lx
+        elif (seq[i][0]=='Y'): runtime += ly
+        else: runtime += lz
+            
+    return runtime
 
 ### ----------------------- TESTING -------------------------- ###
 # Comparing Part 1 and Part 2 outputs
 def testing(inputs):
     '''Running tests for Parts 1 and 2 - it is important for the results to be the same
     for both parts. For part two, the relevant Y(\theta)=Z(90)X(\theta)Z(-90) is shown.'''
-
     for i in range(len(inputs)):
         print("\nInput examined:", inputs[i])
         seq1 = inputs[i].replace(", ", "")
@@ -108,6 +125,7 @@ def testing(inputs):
     return None
 
 def run_tests():
+    '''Create some hardcoded inputs and run them as tests.'''
     inputs = [
         'X(90), X(90)', 
         'X(90), Y(180), X(90)', 
@@ -117,9 +135,110 @@ def run_tests():
         'X(90), X(90), Y(90), X(180), Y(90), X(90), X(90), Y(90)'
     ]
 
+    # Do the tests
     testing(inputs)
     
     return None
 
+def run_tests_with_runtimes(lx, lz, ly):
+    '''Create some hardcoded sequences and run them as tests, also calculating 
+    the sequence runtime according to get lengths'''
+    inputs = [
+        'X(90), X(90)', 
+        'X(90), Y(180), X(90)', 
+        'X(90), X(90), Y(90), X(180), Y(90)', 
+        'Y(45), X(90), Y(45), Y(70), Y(70), X(90)', 
+        'X(90), X(90), Y(180), X(90)', 
+        'X(90), X(90), Y(90), X(180), Y(90), X(90), X(90), Y(90)'
+    ]
+
+    # Do the tests
+    testing_with_runtimes(inputs, lx, lz, ly)
+    
+    return None
+
+def testing_with_runtimes(inputs, lx, lz, ly):
+    '''Running tests for Parts 1 and 2 - it is important for the results to be the same
+    for both parts. For part two, the relevant Y(\theta)=Z(90)X(\theta)Z(-90) is shown.'''
+
+    for i in range(len(inputs)):
+        print("\nInput examined:", inputs[i])
+        pre_opt_runtime = calculate_runtime(inputs[i].replace(" ", ""), lx, lz, ly)
+        seq1 = inputs[i].replace(", ", "")
+        seq2 = inputs[i].replace(" ", "")
+        seq2 = expand_Ys(seq2)
+        opt1 = optimise_circuit_part1(seq1)
+        opt2 = optimise_circuit_part2(seq2)
+        
+        # Results for Part 1 - optimised
+        opt1 = get_opt_res(opt1)
+        print("Optimised sequence for Part 1:", opt1)
+        opt1_runtime = calculate_runtime(opt1, lx, lz, ly)
+
+        # Results for Part 2 - optimised
+        opt2 = get_opt_res(opt2)
+        opt2 = expand_Ys(opt2)
+        print("Optimised sequence for Part 2:", opt2)
+        opt2_runtime = calculate_runtime(opt2, lx, lz, ly)
+        
+        # Results for Part 3 - runtime
+        print("Runtime for initial sequence:", pre_opt_runtime)
+        print("Runtime for optimised sequence for Part 1:", opt1_runtime)
+        print("Runtime for optimised sequence for Part 2:", opt2_runtime)
+    
+    return None
+
+def generate_random_sequence(length, operations):
+    '''Generates a random sequence of specific length and random angles for X, Y, Z operations or a subset of them.'''        
+    return (', '.join(["{}({})".format(random.choice(operations), random.randrange(361)) for i in range(length)]))
+
+def random_seq_test():
+    '''Generates a random sequence of a given length and operations subset and optimises it. Showcases
+    the relevant tests'''
+    length = 0
+    operations = ['']
+    length = int(input("Enter a desired length for the sequence: "))
+    operations = list(input("Give desired operations as XYZ or a subset (no commas or spaces):"))
+    
+    seq = generate_random_sequence(length, operations)
+    print("\nThe randomely generated sequence of gates:", seq, "\n")
+    
+    pre_opt_runtime = calculate_runtime(seq.replace(" ", ""), lx, lz, ly)
+    seq1 = seq.replace(", ", "")
+    seq2 = seq.replace(" ", "")
+    seq2 = expand_Ys(seq2)
+    opt1 = optimise_circuit_part1(seq1)
+    opt2 = optimise_circuit_part2(seq2)
+
+    # Results for Part 1 - optimised
+    opt1 = get_opt_res(opt1)
+    print("Optimised sequence for Part 1:", opt1)
+    opt1_runtime = calculate_runtime(opt1, lx, lz, ly)
+
+    # Results for Part 2 - optimised
+    opt2 = get_opt_res(opt2)
+    opt2 = expand_Ys(opt2)
+    print("Optimised sequence for Part 2:", opt2)
+    opt2_runtime = calculate_runtime(opt2, lx, lz, ly)
+
+    # Results for Part 3 - runtime
+    print("\nRuntime for initial sequence:", pre_opt_runtime)
+    print("Runtime for optimised sequence for Part 1:", opt1_runtime)
+    print("Runtime for optimised sequence for Part 2:", opt2_runtime)
+    
+    return None
+
 # Run the tests
+print("\n---------!!Running tests for optimised circuits (Part 1 and 2)!!---------")
 run_tests()
+
+# Run the tests with runtimes
+print("\n---------!!Running tests with associated runtimes (Parts 1, 2 and 3)!!---------")
+lz = float(input("Enter the length of gate Z in nanoseconds: "))
+lx = float(input("Enter the length of gate X in nanoseconds: "))
+ly = float(input("Enter the length of gate Y in nanoseconds: "))
+run_tests_with_runtimes(lx, lz, ly)
+
+# Run a test with randomely generated sequence
+print("\n---------!!Running a test on a randomely generated sequence!!---------")
+random_seq_test()
